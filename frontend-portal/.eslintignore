@@ -1,0 +1,9 @@
+node_modules
+dist
+dist-ssr
+public
+*.local
+
+# 自动生成文件
+src/auto-imports.d.ts
+src/components.d.ts

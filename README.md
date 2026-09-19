@@ -84,8 +84,25 @@ frontend-portal/
 ## 开发命令
 
 ```bash
-npm run dev      # 启动开发服务器
-npm run build    # 构建生产版本
-npm run preview  # 预览生产构建
-npm run lint     # 代码检查
+npm run dev         # 启动开发服务器
+npm run build       # 构建生产版本
+npm run preview     # 预览生产构建
+npm run type-check  # 类型校验（vue-tsc）
+npm run lint        # 代码检查（ESLint，只检查不修改）
+npm run lint:fix    # 代码检查并自动修复可修复项
+npm run check       # 完整检查流程：类型校验 + 代码检查
 ```
+
+## 代码检查流程
+
+本地检查与上线前检查（CI）使用同一套标准，提交流程：
+
+```bash
+cd frontend-portal
+npm ci          # 按 lockfile 干净安装依赖（与 CI 一致）
+npm run check   # 依次执行类型校验、代码检查
+```
+
+- 流程中任何一步失败即中断，终端会显示失败步骤的名称与具体错误（文件、行号、规则），修复后重新执行 `npm run check` 即可。
+- 上线前检查由 GitHub Actions（`.github/workflows/ci.yml`）在 push 到 main 及 Pull Request 时自动执行：检出代码 → 安装 Node.js（缓存 npm 依赖）→ `npm ci` → `npm run type-check` → `npm run lint`，与本地命令完全一致；失败的任务可直接在 Actions 页面重试。
+- ESLint 配置见 `frontend-portal/.eslintrc.cjs`，忽略目录见 `frontend-portal/.eslintignore`。
