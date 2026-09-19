@@ -84,8 +84,28 @@ frontend-portal/
 ## 开发命令
 
 ```bash
-npm run dev      # 启动开发服务器
-npm run build    # 构建生产版本
-npm run preview  # 预览生产构建
-npm run lint     # 代码检查
+npm run dev        # 启动开发服务器
+npm run build      # 构建生产版本
+npm run preview    # 预览生产构建
+npm run check      # 统一检查流程：依赖安装与缓存 → 类型校验 → 代码检查
+npm run lint       # 代码检查（不自动修复）
+npm run lint:fix   # 代码检查并自动修复可修复的问题
+npm run type-check # 仅做类型校验
 ```
+
+### 上线前检查
+
+本地检查与上线前检查（Docker 镜像构建阶段）执行的是同一条命令、同一套标准：
+
+```bash
+npm run check
+```
+
+流程按顺序执行三步，任一步骤失败会立即停止并标明是哪一步、什么原因；按输出修复后重跑即可，已通过的步骤（含未变更的依赖安装）会自动跳过：
+
+1. **依赖安装与缓存**：依据 `package-lock.json` 的哈希决定是否执行 `npm ci`，lockfile 未变更则跳过；
+2. **类型校验**：`vue-tsc --noEmit`；
+3. **代码检查**：`eslint`（配置见 `eslint.config.mjs`）。
+
+> Docker 构建时依赖已由前一层 `npm ci` 装好，check 会通过 `CHECK_SKIP_INSTALL=1` 跳过重复安装，但类型校验与代码检查一步不少。
+

@@ -12,6 +12,11 @@ RUN npm ci --registry=https://registry.npmmirror.com
 # 复制源代码
 COPY . .
 
+# 上线前检查（与本地同一套标准：类型校验 + 代码检查）
+# Dockerfile 上一步已按 lockfile 安装依赖，跳过 check 的重复安装步骤
+ENV CHECK_SKIP_INSTALL=1
+RUN npm run check
+
 # 构建
 RUN npm run build
 
